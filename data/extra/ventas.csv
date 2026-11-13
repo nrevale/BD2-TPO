@@ -1,0 +1,16 @@
+id_venta,id_cliente,id_farmaceutico,id_receta,fecha,tipo,medio_pago,total,estado
+V017,C009,F016,RC015,@hoy-15,Con receta,Obra social,9800,Completada
+V018,C011,F011,RC010,@hoy-33,Con receta,Obra social,10800,Completada
+V019,C018,F014,RC012,@hoy-50,Con receta,Obra social,15800,Completada
+V020,C018,F014,RC012,@hoy-20,Con receta,Obra social,15800,Completada
+V021,C014,F010,RC016,@hoy-40,Con receta,Obra social,4300,Completada
+V022,C013,F008,RC017,@hoy-2,Con receta,Obra social,12500,Pendiente
+V023,C009,F016,,@hoy,Venta libre,Débito,6300,Completada
+V024,C009,F001,,@mes,Venta libre,Efectivo,2600,Completada
+V025,C017,F014,,@hoy-1,Venta libre,Crédito,8900,Anulada
+V026,C012,F008,,@hoy-400,Venta libre,Efectivo,5600,Completada
+V027,C016,F013,RC018,@hoy-200,Con receta,Obra social,6200,Completada
+V028,C014,F010,,@hoy-3,Venta libre,Transferencia,4500,Pendiente
+V029,C002,F003,,@hoy-1,Venta libre,Débito,7200,Completada
+V030,C006,F002,,@hoy,Venta libre,Crédito,10500,Completada
+V031,C005,F005,,@mes,Venta libre,Efectivo,2200,Anulada

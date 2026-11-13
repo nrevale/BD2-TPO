@@ -1,0 +1,11 @@
+id_producto,nombre,principio_activo,categoria,presentacion,condicion_venta,precio_unit,id_proveedor,activo
+PRD014,Enalapril 10mg x30,Enalapril,Antihipertensivo,Comprimidos x30,Bajo receta,4300,PRV006,True
+PRD015,Clonazepam 2mg x30,Clonazepam,Ansiolítico,Comprimidos x30,Bajo receta archivada,6800,PRV009,True
+PRD016,Amoxicilina + Clavulánico 875mg x14,Amoxicilina/Clavulánico,Antibiótico,Comprimidos x14,Bajo receta,12500,PRV011,True
+PRD017,Diclofenac gel 1% 60g,Diclofenac,Antiinflamatorio,Gel 60 g,Venta libre,3900,PRV006,True
+PRD018,Vitamina C 1g x20,Ácido ascórbico,Suplemento,Comprimidos efervescentes x20,Venta libre,2600,PRV008,True
+PRD019,Insulina NPH 100UI/ml,Insulina humana,Antidiabético,Vial 10 ml,Bajo receta,15800,PRV013,True
+PRD020,Protector solar FPS50 200ml,Filtros UV,Dermocosmética,Loción 200 ml,Venta libre,8900,PRV015,True
+PRD021,Termómetro digital,No aplica,Accesorio,Unidad,Venta libre,4500,PRV012,True
+PRD022,Cetirizina 10mg x10,Cetirizina,Antihistamínico,Comprimidos x10,Venta libre,2400,PRV009,True
+PRD023,Sertralina 50mg x30,Sertralina,Antidepresivo,Comprimidos x30,Bajo receta archivada,9400,PRV014,False

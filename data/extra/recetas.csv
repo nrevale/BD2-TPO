@@ -1,0 +1,11 @@
+id_receta,id_cliente,medico,matricula_medico,fecha_emision,tipo,dispensas_autorizadas,dispensas_realizadas,proxima_dispensa,estado
+RC010,C011,Dra. Beatriz Sosa,MP-40021,@hoy-70,Tratamiento prolongado,3,1,@hoy-3,Vigente
+RC011,C011,Dr. Hernán Paz,MP-38450,@hoy-20,Simple,1,0,,Vigente
+RC012,C018,Dr. Marcelo Funes,MP-44102,@hoy-60,Tratamiento prolongado,3,2,@hoy+10,Vigente
+RC013,C018,Dra. Inés Arrieta,MP-36420,@hoy-200,Simple,1,0,,Vencida
+RC014,C018,Dra. Nora Quiroga,MP-51234,@hoy-10,Archivada,1,0,,Vigente
+RC015,C009,Dr. Ramiro Vidal,MP-47001,@hoy-15,Simple,1,1,,Completada
+RC016,C014,Dra. Silvia Torres,MP-46220,@hoy-40,Tratamiento prolongado,3,1,@hoy-10,Vigente
+RC017,C013,Dr. Fabián Leiva,MP-49870,@hoy-5,Simple,1,0,,Vigente
+RC018,C016,Dr. Oscar Benítez,MP-42011,@hoy-210,Simple,1,1,,Completada
+RC019,C012,Dra. Laura Pérez,MP-45566,@hoy-430,Simple,1,0,,Vencida

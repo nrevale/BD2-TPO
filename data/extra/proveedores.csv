@@ -1,0 +1,11 @@
+id_proveedor,razon_social,cuit,tipo,ciudad,provincia,telefono,activo
+PRV006,Cuyo Pharma S.A.,30-71222333-4,Laboratorio,Mendoza,Mendoza,2614206600,True
+PRV007,Droguería del Centro S.A.,30-70444555-2,Droguería,Córdoba,Córdoba,3514207700,True
+PRV008,Laboratorios Patagónicos S.R.L.,30-71666777-8,Laboratorio,Neuquén,Neuquén,2994208800,True
+PRV009,Farmacéutica del Plata S.A.,30-70888999-6,Laboratorio,La Plata,Buenos Aires,2214209900,True
+PRV010,Droguería Norte S.A.,30-71000111-3,Droguería,San Miguel de Tucumán,Tucumán,3814201010,True
+PRV011,Laboratorio Mesopotamia S.A.,30-70222444-9,Laboratorio,Paraná,Entre Ríos,3434201111,True
+PRV012,Insumos Sanitarios Pampa S.R.L.,30-71333555-1,Droguería,Santa Rosa,La Pampa,2954201212,True
+PRV013,BioAndes Laboratorios S.A.,30-70555666-7,Laboratorio,Salta,Salta,3874201313,True
+PRV014,Química Federal S.A.,30-71777888-5,Laboratorio,Rosario,Santa Fe,3414201414,False
+PRV015,Dermosalud S.A.,30-70999000-2,Laboratorio,Buenos Aires,Buenos Aires,1143201515,True

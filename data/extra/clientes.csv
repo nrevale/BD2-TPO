@@ -1,0 +1,11 @@
+id_cliente,nombre,apellido,dni,email,telefono,ciudad,provincia,obra_social,nro_afiliado,activo
+C009,Agustina,Molina,42345678,agus.molina@gmail.com,1150123344,Buenos Aires,Buenos Aires,OSDE,OS-420118,True
+C010,Bruno,Sosa,30111222,bruno.sosa@gmail.com,3415112200,Rosario,Santa Fe,Sin cobertura,,True
+C011,Elena,Ibarra,18234567,elena.ibarra@gmail.com,3515667788,Córdoba,Córdoba,PAMI,PA-330981,True
+C012,Gonzalo,Ríos,35222333,gonza.rios@gmail.com,2214778899,La Plata,Buenos Aires,IOMA,IO-551203,True
+C013,Ivana,Luna,41333444,ivana.luna@gmail.com,2235889900,Mar del Plata,Buenos Aires,Swiss Medical,SM-310774,True
+C014,Joaquín,Peralta,29444555,joaco.peralta@gmail.com,3424990011,Santa Fe,Santa Fe,Galeno,GA-118402,True
+C015,Karina,Vega,36555666,karina.vega@gmail.com,3541001122,Villa Carlos Paz,Córdoba,OSDE,OS-640092,False
+C016,Leandro,Funes,27666777,lean.funes@gmail.com,1142112233,Quilmes,Buenos Aires,PAMI,PA-882310,True
+C017,Micaela,Ponce,43777888,mica.ponce@gmail.com,3492223344,Rafaela,Santa Fe,Sin cobertura,,True
+C018,Nicolás,Acosta,38888999,nico.acosta@gmail.com,1147334455,Tigre,Buenos Aires,IOMA,IO-772415,True
