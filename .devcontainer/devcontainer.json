@@ -1,0 +1,22 @@
+{
+  "name": "FarmaRed — BD2 TPO",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb"
+  },
+  "forwardPorts": ["neo4j:7474", "neo4j:7687"],
+  "portsAttributes": {
+    "neo4j:7474": { "label": "Neo4j Browser" },
+    "neo4j:7687": { "label": "Neo4j Bolt" }
+  },
+  "postCreateCommand": "python -m farmared salud",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "mongodb.mongodb-vscode"]
+    }
+  }
+}
