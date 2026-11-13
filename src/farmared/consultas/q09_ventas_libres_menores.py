@@ -18,8 +18,9 @@ MOTOR = "mongo"
 TOPE = 5000
 
 FILTRO = {"tipo": "Venta libre", "total": {"$lt": TOPE}, "estado": {"$ne": "Anulada"}}
-PROYECCION = {"_id": 0, "id_venta": "$_id", "fecha": 1, "id_cliente": 1, "id_farmaceutico": 1,
-              "total": 1, "estado": 1}
+# Todos los campos como expresión: así se respeta el orden pedido (con 1 quedaría el del documento).
+PROYECCION = {"_id": 0, "id_venta": "$_id", "fecha": "$fecha", "id_cliente": "$id_cliente",
+              "id_farmaceutico": "$id_farmaceutico", "total": "$total", "estado": "$estado"}
 
 
 def ejecutar(db: Database) -> list[dict]:
