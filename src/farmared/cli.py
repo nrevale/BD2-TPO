@@ -1,8 +1,4 @@
-"""CLI de FarmaRed: `python -m farmared <comando>`.
-
-Fase 1 solo expone `salud`. Las fases siguientes agregan `setup`, las consultas
-q01–q12 y los servicios q13–q15.
-"""
+"""CLI de FarmaRed: `python -m farmared <comando>`."""
 
 from __future__ import annotations
 
@@ -11,6 +7,10 @@ from rich.console import Console
 from rich.table import Table
 
 from farmared import reloj
+from farmared.carga import cargar_mongo
+from farmared.carga.lector_csv import ErrorDatasets
+from farmared.carga.validacion import leer_datasets, validar
+from farmared.config import cargar_config
 from farmared.db import mongo, neo4j
 from farmared.errores import ConexionError
 
@@ -56,3 +56,56 @@ def salud() -> None:
     console.print(tabla)
     if not ok:
         raise typer.Exit(code=1)
+
+
+def _mostrar_conteos(conteos: dict[str, dict[str, int]], documentos: dict[str, int] | None = None) -> None:
+    tabla = Table(title="Registros por dataset")
+    for col in ("Dataset", "Originales", "Extra", "Total"):
+        tabla.add_column(col, justify="left" if col == "Dataset" else "right")
+    if documentos is not None:
+        tabla.add_column("Documentos en Mongo", justify="right")
+    for nombre, c in conteos.items():
+        fila = [nombre, str(c.get("originales", 0)), str(c.get("extra", 0)), str(sum(c.values()))]
+        if documentos is not None:
+            destino = "ventas (ítems embebidos)" if nombre == "detalle_ventas" else str(documentos.get(nombre, ""))
+            fila.append(destino)
+        tabla.add_row(*fila)
+    console.print(tabla)
+
+
+def _mostrar_avisos(avisos: list[str]) -> None:
+    if avisos:
+        console.print(f"[yellow]{len(avisos)} aviso(s): la historia no coincide con el estado actual (se carga igual)[/]")
+        for a in avisos:
+            console.print(f"  [yellow]•[/] {a}")
+
+
+@app.command("validar-datos")
+def validar_datos() -> None:
+    """Valida los CSV (originales + extra) sin conectarse a ninguna base."""
+    try:
+        ds = leer_datasets(cargar_mongo.directorios_por_defecto(), reloj.hoy())
+        avisos = validar(ds)
+    except ErrorDatasets as e:
+        console.print(f"[red]{e}[/]")
+        raise typer.Exit(code=1)
+    _mostrar_conteos(ds.conteo_por_origen)
+    _mostrar_avisos(avisos)
+    console.print("[green]Datasets válidos.[/]")
+
+
+@app.command()
+def setup() -> None:
+    """Carga idempotente: valida los CSV y recarga MongoDB desde cero (drop + create + insert)."""
+    cfg = cargar_config()
+    console.print(f"Cargando en MongoDB '{cfg.mongo_db}' con hoy = {reloj.hoy().isoformat()} ...")
+    try:
+        resumen = cargar_mongo.cargar(mongo.get_client(), cfg.mongo_db)
+    except ErrorDatasets as e:
+        console.print(f"[red]{e}[/]\n[red]No se modificó la base.[/]")
+        raise typer.Exit(code=1)
+    finally:
+        mongo.cerrar()
+    _mostrar_conteos(resumen.conteos, resumen.documentos)
+    _mostrar_avisos(resumen.avisos)
+    console.print("[green]MongoDB cargado.[/]")

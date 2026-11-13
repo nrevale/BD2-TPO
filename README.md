@@ -19,7 +19,7 @@ flowchart LR
 ### GitHub Codespaces (recomendado)
 
 1. En GitHub: **Code → Codespaces → Create codespace on main**.
-2. Esperar a que termine el `postCreateCommand` (2–3 minutos la primera vez). Levanta MongoDB, inicializa el replica set `rs0`, levanta Neo4j y corre `python -m farmared salud`.
+2. Esperar a que termine el `postCreateCommand` (2–3 minutos la primera vez). Levanta MongoDB, inicializa el replica set `rs0`, levanta Neo4j, verifica los motores con `salud` y carga los datos con `setup`.
 
 Todo se configura en [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) y [docker-compose.yml](docker-compose.yml); no hay pasos manuales.
 
@@ -52,8 +52,18 @@ python -m farmared salud
 | Comando | Qué hace |
 |---|---|
 | `python -m farmared salud` | Verifica MongoDB (primario de `rs0`) y Neo4j |
+| `python -m farmared validar-datos` | Valida los CSV (originales + extra) sin tocar ninguna base |
+| `python -m farmared setup` | Carga idempotente: valida, borra y recarga MongoDB desde los CSV |
 
-> En construcción: `setup` (carga idempotente), `q 1..12`, `cliente`, `venta`, `stock`.
+> En construcción: proyección a Neo4j, `q 1..12`, `cliente`, `venta`, `stock`.
+
+## Datos
+
+- [data/originales/](data/originales/) tiene los 9 CSV provistos por la cátedra, sin modificar.
+- [data/extra/](data/extra/) tiene los registros propios del equipo: al menos 10 por tabla, con las mismas columnas. Cubren casos borde: stock bajo, lotes vencidos y por vencer, recetas vencidas y con dispensa atrasada, clientes sin compras, ventas pendientes y anuladas, y una sucursal y un farmacéutico dados de baja.
+- **Fechas relativas.** Los extra pueden usar `@hoy`, `@hoy-N`, `@hoy+N` y `@mes` (día 1 del mes actual), que se resuelven al cargar. Así las consultas que dependen de la fecha (últimos 60 días, mes actual, último año) siempre tienen datos, sin importar cuándo se corra el sistema.
+- **Carga idempotente.** `setup` valida todo antes de escribir: referencias, claves únicas, enums, que el total coincida con los ítems y las reglas de recetas y ventas. Si hay errores, no toca la base. Si los datos son válidos, borra la base y la recarga en una sola transacción. Correrlo varias veces deja el mismo estado.
+- **Avisos.** Algunas ventas históricas no coinciden con el estado actual: por ejemplo, V001 la atendió F004, que hoy está inactivo. Se informan y se cargan igual, porque la historia es válida.
 
 ## Configuración
 
