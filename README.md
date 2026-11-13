@@ -53,9 +53,23 @@ python -m farmared salud
 |---|---|
 | `python -m farmared salud` | Verifica MongoDB (primario de `rs0`) y Neo4j |
 | `python -m farmared validar-datos` | Valida los CSV (originales + extra) sin tocar ninguna base |
-| `python -m farmared setup` | Carga idempotente: valida, borra y recarga MongoDB desde los CSV |
+| `python -m farmared setup` | Carga idempotente: valida, borra y recarga MongoDB desde los CSV y reconstruye el grafo |
+| `python -m farmared sync` | Proyecta en Neo4j las escrituras pendientes del outbox |
+| `python -m farmared rebuild-grafo` | Borra el grafo y lo reconstruye completo desde MongoDB |
 
-> En construcción: proyección a Neo4j, `q 1..12`, `cliente`, `venta`, `stock`.
+> En construcción: `q 1..12`, `cliente`, `venta`, `stock`.
+
+## Grafo y sincronización
+
+Neo4j guarda los caminos que recorren las consultas de historial y relaciones:
+
+```
+(:Cliente)-[:REALIZO]->(:Venta)-[:ATENDIDA_POR]->(:Farmaceutico)-[:TRABAJA_EN]->(:Sucursal)
+(:Cliente)-[:TIENE_RECETA]->(:Receta)<-[:DISPENSA]-(:Venta)
+(:Venta)-[:INCLUYE {cantidad, precio_unit}]->(:Producto)
+```
+
+El grafo nunca se escribe directamente: siempre se proyecta desde MongoDB. Cada servicio de escritura guarda un evento en la colección `outbox` dentro de la misma transacción de Mongo, y después del commit lo proyecta en Neo4j. Si Neo4j no responde, el evento queda pendiente y `sync` lo reintenta; `rebuild-grafo` lo rehace todo.
 
 ## Datos
 
@@ -81,6 +95,8 @@ Todo tiene un valor por defecto. Para cambiar algo, copiá [.env.example](.env.e
 ```bash
 pytest
 ```
+
+Los tests usan la base `farmared_test` de MongoDB y fijan "hoy" en 2026-11-13. Neo4j Community tiene una sola base, así que los tests del grafo lo reconstruyen con los datos de prueba: después de correrlos, `python -m farmared setup` deja el grafo de desarrollo como estaba.
 
 ## Troubleshooting
 

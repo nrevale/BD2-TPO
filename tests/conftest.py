@@ -31,6 +31,21 @@ def mongo_client():
     mongo.cerrar()
 
 
+@pytest.fixture(scope="session")
+def neo4j_driver():
+    """Driver de Neo4j. Ojo: Neo4j Community tiene una sola base, así que los tests que
+    reconstruyen el grafo lo pisan con los datos de `farmared_test` (correr `setup` después)."""
+    from farmared.db import neo4j
+    from farmared.errores import ConexionError
+
+    try:
+        neo4j.estado()
+    except ConexionError as e:
+        pytest.skip(f"Neo4j no disponible: {e}")
+    yield neo4j.get_driver()
+    neo4j.cerrar()
+
+
 @pytest.fixture(scope="module")
 def db(mongo_client):
     """Base recién cargada (originales + extra) para el módulo de tests."""
