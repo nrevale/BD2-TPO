@@ -10,6 +10,7 @@ from farmared import reloj
 from farmared.carga import cargar_mongo
 from farmared.carga.lector_csv import ErrorDatasets
 from farmared.carga.validacion import leer_datasets, validar
+from farmared.comandos import clientes, consultas, informe, stock, ventas
 from farmared.config import cargar_config
 from farmared.db import mongo, neo4j
 from farmared.errores import ConexionError
@@ -164,3 +165,8 @@ def sync() -> None:
         console.print(f"  [red]•[/] {e}")
     if r.pendientes:
         raise typer.Exit(code=1)
+
+
+# Comandos de consultas y servicios: cada área vive en su archivo de farmared/comandos/.
+for _modulo in (consultas, clientes, ventas, stock, informe):
+    _modulo.registrar(app)
