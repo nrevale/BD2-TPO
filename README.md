@@ -7,11 +7,11 @@ Backoffice de una red de farmacias con **persistencia políglota**:
 
 ```mermaid
 flowchart LR
-    CSV[data/originales + data/extra] -->|setup| M[(MongoDB<br/>fuente de verdad)]
-    S[Servicios q13–q15] -->|transacción| M
-    M -->|outbox / rebuild| N[(Neo4j<br/>proyección)]
-    Q1[q1, q2, q4, q6–q9, q11] --> M
-    Q2[q3, q5, q10, q12] --> N
+    CSV["data/originales + data/extra"] -->|setup| M[("MongoDB<br/>fuente de verdad")]
+    S["Servicios q13–q15"] -->|transacción| M
+    M -->|outbox / rebuild| N[("Neo4j<br/>proyección")]
+    Q1["q1, q2, q4, q6–q9, q11"] --> M
+    Q2["q3, q5, q10, q12"] --> N
 ```
 
 ## Levantar el entorno
@@ -56,8 +56,45 @@ python -m farmared salud
 | `python -m farmared setup` | Carga idempotente: valida, borra y recarga MongoDB desde los CSV y reconstruye el grafo |
 | `python -m farmared sync` | Proyecta en Neo4j las escrituras pendientes del outbox |
 | `python -m farmared rebuild-grafo` | Borra el grafo y lo reconstruye completo desde MongoDB |
+| `python -m farmared q <n>` | Ejecuta una consulta de lectura (q1–q12). Usá `--json` para salida JSON |
+| `python -m farmared cliente alta`, `modificar` o `baja` | ABM de clientes (q13) |
+| `python -m farmared venta registrar` | Registra una venta completada, aplica FEFO y dispensa la receta si corresponde (q14) |
+| `python -m farmared stock descontar <id_venta>` | Aplica FEFO a una venta completada con stock pendiente (q15) |
+| `python -m farmared informe-resultados --out <carpeta>` | Genera `q01.md` a `q15.md` con resultados y ejemplos de escritura |
 
-> En construcción: `q 1..12`, `cliente`, `venta`, `stock`.
+### Ejemplos de q1–q15
+
+| Consulta | Ejemplo |
+|---|---|
+| q1 Productos y proveedores | `python -m farmared q 1` |
+| q2 Ventas pendientes | `python -m farmared q 2` |
+| q3 Historial de un cliente | `python -m farmared q 3 --id-cliente C006` |
+| q4 Clientes con varias recetas | `python -m farmared q 4` |
+| q5 Ventas por farmacéutico | `python -m farmared q 5` |
+| q6 Dispensaciones atrasadas | `python -m farmared q 6` |
+| q7 Productos más vendidos | `python -m farmared q 7` |
+| q8 Lotes con stock bajo | `python -m farmared q 8` |
+| q9 Ventas libres de menos de $5.000 | `python -m farmared q 9` |
+| q10 Clientes atendidos en una sucursal | `python -m farmared q 10 --id-sucursal S001` |
+| q11 Ingresos del mes | `python -m farmared q 11` |
+| q12 Clientes sin ventas en el último año | `python -m farmared q 12` |
+| q13 Modificar el contacto de un cliente | `python -m farmared cliente modificar C007 --email demo@example.com` |
+| q14 Registrar una venta con receta | `python -m farmared venta registrar --cliente C007 --farmaceutico F001 --item PRD003:50 --receta RC006 --pago "Obra social"` |
+| q15 Rechazar un segundo descuento | `python -m farmared stock descontar V002` |
+
+Los comandos de q13 y q14 escriben datos si tienen éxito. En la carga inicial, las ventas completadas ya tienen aplicado el stock. Para ver un descuento exitoso de q15, ejecutá el ejemplo de q14 sobre una carga fresca con `FARMARED_HOY=2026-11-13` y verificá que consuma 40 unidades de L005 y 10 de L015.
+
+### Resultados para el informe
+
+En un Codespace de demostración, corré estos comandos antes de probar escrituras manuales:
+
+```bash
+export FARMARED_HOY=2026-11-13
+python -m farmared setup
+python -m farmared informe-resultados --out docs-local/resultados
+```
+
+`setup` recarga la base configurada en MongoDB y reconstruye Neo4j desde los CSV. El generador toma q1–q12 de esas bases y ejecuta los ejemplos de escritura en una base temporal de MongoDB, que elimina al terminar. Los Markdown muestran resultados, estados antes y después, y rechazos de q13–q15. La carpeta `docs-local/` está ignorada por Git.
 
 ## Grafo y sincronización
 
@@ -69,7 +106,7 @@ Neo4j guarda los caminos que recorren las consultas de historial y relaciones:
 (:Venta)-[:INCLUYE {cantidad, precio_unit}]->(:Producto)
 ```
 
-El grafo nunca se escribe directamente: siempre se proyecta desde MongoDB. Cada servicio de escritura guarda un evento en la colección `outbox` dentro de la misma transacción de Mongo, y después del commit lo proyecta en Neo4j. Si Neo4j no responde, el evento queda pendiente y `sync` lo reintenta; `rebuild-grafo` lo rehace todo.
+El grafo se proyecta desde MongoDB. q13 y q14 guardan sus eventos en `outbox` en la misma transacción de los datos y los proyectan después del commit. Si Neo4j no responde, `sync` reintenta los eventos pendientes y `rebuild-grafo` puede reconstruir el grafo completo. El stock se mantiene en MongoDB.
 
 ## Datos
 
@@ -96,7 +133,14 @@ Todo tiene un valor por defecto. Para cambiar algo, copiá [.env.example](.env.e
 pytest
 ```
 
-Los tests usan la base `farmared_test` de MongoDB y fijan "hoy" en 2026-11-13. Neo4j Community tiene una sola base, así que los tests del grafo lo reconstruyen con los datos de prueba: después de correrlos, `python -m farmared setup` deja el grafo de desarrollo como estaba.
+Para verificar q14 con los dos motores levantados en Codespaces:
+
+```bash
+python -m farmared salud
+pytest -q -rs tests/test_q14.py
+```
+
+Las pruebas de q14 cubren el descuento en dos lotes, la proyección de la venta y la receta, y el rollback de venta, receta, lotes, contadores y outbox. La suite usa `farmared_test` y fija la fecha en 2026-11-13. Neo4j Community tiene una sola base y las pruebas de integración reconstruyen su grafo. Después de las pruebas, `python -m farmared rebuild-grafo` vuelve a proyectar los datos del MongoDB configurado.
 
 ## Troubleshooting
 
