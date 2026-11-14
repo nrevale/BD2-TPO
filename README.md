@@ -145,6 +145,7 @@ Las pruebas de q14 cubren el descuento en dos lotes, la proyección de la venta 
 ## Troubleshooting
 
 - **`salud` dice que MongoDB no es primario:** el replica set todavía se está eligiendo. Revisá `docker compose logs mongo-init`.
+- **MongoDB perdía la conexión durante los tests en Codespaces.** Reconstruimos el contenedor con **Codespaces: Rebuild Container** para aplicar el límite de 64.000 archivos abiertos del servicio `mongo`. Con el límite anterior de 1.024, `mongod` podía terminar con `TooManyFilesOpen`. En un Codespace existente, el mismo comando aplica el cambio después de actualizar el repo.
 - **Neo4j tarda en arrancar:** el healthcheck espera hasta unos 3 minutos. Revisá `docker compose logs neo4j`.
 - **Desde el host falla la conexión a Mongo:** la URI necesita `directConnection=true`, porque el miembro del replica set se llama `mongo` y ese nombre solo resuelve dentro de Docker.
 - **¿Por qué `mongo:8.2` y no `8.0`?** `mongo:8.0` se niega a arrancar en kernels Linux 6.19–7.0.13 (SERVER-121912), y Docker Desktop usa uno de esos kernels. 8.2 arranca bien.

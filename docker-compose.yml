@@ -5,6 +5,11 @@ name: farmared
 services:
   mongo:
     image: mongo:8.2
+    # Codespaces puede iniciar mongod con nofile=1024 y agotar los descriptores durante pytest.
+    ulimits:
+      nofile:
+        soft: 64000
+        hard: 64000
     command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "127.0.0.1:27017:27017"
