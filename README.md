@@ -5,6 +5,8 @@ Backoffice de una red de farmacias con **persistencia políglota**:
 - **MongoDB** (documentos) es la fuente de verdad y recibe todas las escrituras. Guarda las ventas con sus ítems embebidos y el stock por lote. Las ventas y el descuento de stock (q14 + q15) corren en una **transacción multi-documento**, sobre un replica set de un nodo.
 - **Neo4j** (grafos) es una proyección de las relaciones cliente–receta–venta–farmacéutico–sucursal–producto. Responde las consultas que recorren esos caminos y se reconstruye desde MongoDB.
 
+**Integrantes:** Timoteo Feeney · Tiziano Fuchinecco · Nicolás Ezequiel Revale · Valentino Sanguinetti
+
 El informe de entrega está en [docs/FarmaRed-informe.pdf](docs/FarmaRed-informe.pdf).
 
 ```mermaid
@@ -110,6 +112,16 @@ Neo4j guarda los caminos que recorren las consultas de historial y relaciones:
 
 El grafo se proyecta desde MongoDB. q13 y q14 guardan sus eventos en `outbox` en la misma transacción de los datos y los proyectan después del commit. Si Neo4j no responde, `sync` reintenta los eventos pendientes y `rebuild-grafo` puede reconstruir el grafo completo. El stock se mantiene en MongoDB.
 
+### Ver el grafo en Neo4j Browser
+
+- **Local:** abrí <http://localhost:7474> y conectá con `bolt://localhost:7687`, usuario `neo4j` y la contraseña de `NEO4J_PASSWORD` (por defecto `farmared123`).
+- **Codespaces:**
+  1. En la pestaña **Ports**, si no aparecen `neo4j:7474` y `neo4j:7687`, usá **Add Port** y escribí cada uno.
+  2. Poné los dos puertos en **Public** (clic derecho → *Port Visibility* → *Public*). Con los puertos privados, el Browser no puede abrir la conexión Bolt.
+  3. Abrí la dirección reenviada del 7474, agregando `/browser/` al final, y conectá con `neo4j+s://<nombre-del-codespace>-7687.app.github.dev:443`.
+  4. Al terminar, volvé los puertos a **Private**.
+- Consultas para empezar: `CALL db.schema.visualization()` muestra el modelo, y `MATCH p=(c:Cliente {id:'C006'})-[*1..2]-() RETURN p` muestra el vecindario que recorre q3.
+
 ## Datos
 
 - [data/originales/](data/originales/) tiene los 9 CSV provistos por la cátedra, sin modificar.
@@ -151,4 +163,5 @@ Las pruebas de q14 cubren el descuento en dos lotes, la proyección de la venta 
 - **Neo4j tarda en arrancar:** el healthcheck espera hasta unos 3 minutos. Revisá `docker compose logs neo4j`.
 - **Desde el host falla la conexión a Mongo:** la URI necesita `directConnection=true`, porque el miembro del replica set se llama `mongo` y ese nombre solo resuelve dentro de Docker.
 - **¿Por qué `mongo:8.2` y no `8.0`?** `mongo:8.0` se niega a arrancar en kernels Linux 6.19–7.0.13 (SERVER-121912), y Docker Desktop usa uno de esos kernels. 8.2 arranca bien.
+- **`no configuration file provided`:** `docker compose` se corre desde la carpeta del repo, donde está `docker-compose.yml`.
 - **Empezar de cero:** `docker compose down -v` borra los volúmenes.
