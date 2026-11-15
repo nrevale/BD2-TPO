@@ -5,6 +5,8 @@ Backoffice de una red de farmacias con **persistencia políglota**:
 - **MongoDB** (documentos) es la fuente de verdad y recibe todas las escrituras. Guarda las ventas con sus ítems embebidos y el stock por lote. Las ventas y el descuento de stock (q14 + q15) corren en una **transacción multi-documento**, sobre un replica set de un nodo.
 - **Neo4j** (grafos) es una proyección de las relaciones cliente–receta–venta–farmacéutico–sucursal–producto. Responde las consultas que recorren esos caminos y se reconstruye desde MongoDB.
 
+El informe de entrega está en [docs/FarmaRed-informe.pdf](docs/FarmaRed-informe.pdf).
+
 ```mermaid
 flowchart LR
     CSV["data/originales + data/extra"] -->|setup| M[("MongoDB<br/>fuente de verdad")]
